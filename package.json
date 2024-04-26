@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  },
+  "name": "server",
+  "version": "1.0.0",
+  "description": "health_food_search_system_server",
+  "main": "index.js",
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  },
+  "scripts": {
+    "start": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "wxn1229",
+  "license": "ISC"
+}
