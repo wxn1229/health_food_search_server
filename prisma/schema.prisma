@@ -1,0 +1,107 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL") 
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+//使用者
+model User {
+  Id             String      @id
+  Email          String      @unique
+  Password       String
+  isSuperAccount Boolean     @default(false)
+  Name           String?
+  Favourite      Favourite[]
+  Comment        Comment[]
+}
+
+//我的最愛
+model Favourite {
+  UserId String
+  HFId   String
+  HF     HealthFood @relation(fields: [HFId], references: [Id])
+  User   User       @relation(fields: [UserId], references: [Id])
+
+  @@id([UserId, HFId])
+}
+
+//評論
+model Comment {
+  UserId  String
+  HFId    String
+  content String
+  point   Float
+  HF      HealthFood @relation(fields: [HFId], references: [Id])
+  User    User       @relation(fields: [UserId], references: [Id])
+
+  @@id([UserId, HFId])
+}
+
+//健康食品
+model HealthFood {
+  Id        String   @id
+  Name      String   @unique
+  AcessDate DateTime
+  CFId      String
+
+  Claims            String
+  Warning           String
+  Precautions       String
+  Website           String
+  ApplicantId       String
+  Applicant         Applicant           @relation(fields: [ApplicantId], references: [Id])
+  Favourite         Favourite[]
+  Comment           Comment[]
+  HF_and_Ingredient HF_and_Ingredient[]
+  HF_and_BF         HF_and_BF[]
+  CF                Certification       @relation(fields: [CFId], references: [Id])
+}
+
+//申請商
+
+model Applicant {
+  Id   String @id
+  Name String
+
+  HealthFood HealthFood[]
+}
+
+model Ingredient {
+  Id                String              @id
+  Name              String?
+  EnglishName       String?
+  HF_and_Ingredient HF_and_Ingredient[]
+}
+
+model HF_and_Ingredient {
+  HFId String
+  IGId String
+  HF   HealthFood @relation(fields: [HFId], references: [Id])
+  IG   Ingredient @relation(fields: [IGId], references: [Id])
+
+  @@id([HFId, IGId])
+}
+
+model Benefits {
+  Id        String      @id
+  Name      String
+  HF_and_BF HF_and_BF[]
+}
+
+model HF_and_BF {
+  HFId String
+  BFId String
+  HF   HealthFood @relation(fields: [HFId], references: [Id])
+  BF   Benefits   @relation(fields: [BFId], references: [Id])
+
+  @@id([HFId, BFId])
+}
+
+model Certification {
+  Id         String       @id
+  Name       String
+  HealthFood HealthFood[]
+}

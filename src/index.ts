@@ -1,5 +1,12 @@
 import express from "express";
 import cors from "cors";
+import { PrismaClient } from "@prisma/client";
+import { SearchSettingRoute } from "./routes/searchSetting";
+
+const prisma = new PrismaClient();
+prisma.$connect().catch((err) => {
+  console.log("🚀 ~ err:", err);
+});
 
 const app = express();
 
@@ -22,6 +29,15 @@ app.post("/", (req, res) => {
     Info: "sucess post",
   });
 });
+
+app.get("/prisma", async (req, res) => {
+  const result = await prisma.healthFood.findMany({
+    take: 5,
+  });
+  res.json({ code: 200, data: result });
+});
+
+app.use("/api/searchsetting", SearchSettingRoute);
 
 app.listen(3003, () => {
   console.log("sever listening 3003");

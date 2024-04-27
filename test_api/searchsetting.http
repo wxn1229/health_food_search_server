@@ -1,0 +1,26 @@
+### search setting route test 
+GET http://localhost:3003/api/searchsetting/test HTTP/1.1
+
+
+### get application options
+
+GET http://localhost:3003/api/searchsetting/applicant HTTP/1.1
+
+
+### get certification options
+GET http://localhost:3003/api/searchsetting/certification HTTP/1.1
+
+
+### get ingredient options
+GET http://localhost:3003/api/searchsetting/ingredient HTTP/1.1
+
+
+### get benefit options
+GET http://localhost:3003/api/searchsetting/benefit HTTP/1.1
+
+
+
+
+
+
+
