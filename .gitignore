@@ -5,7 +5,6 @@ node_modules/
 dist/
 
 # 忽略環境配置檔案
-.env
 
 # 忽略任何以 .log 結尾的檔案
 *.log
