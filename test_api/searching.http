@@ -1,0 +1,38 @@
+### searching route test 
+GET http://localhost:3003/api/searching/test HTTP/1.1
+
+
+### test POST
+POST  http://localhost:3003/api/searching/multisearching HTTP/1.1
+Content-Type: application/json
+
+{
+    "keypoint": "",
+    "id": "",
+    "start_date": {
+        "calendar": {
+            "identifier": "gregory"
+        },
+        "era": "AD",
+        "year": 1990,
+        "month": 1,
+        "day": 1
+    },
+    "end_date": {
+        "calendar": {
+            "identifier": "gregory"
+        },
+        "era": "AD",
+        "year": 2025,
+        "month": 12,
+        "day": 31
+    },
+    "applicant": "",
+    "certification": "C1",
+    "ingredient": "",
+    "benefit": "",
+    "start_rate_point": 0,
+    "end_rate_point": 5
+}
+
+###
