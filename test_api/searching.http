@@ -7,14 +7,14 @@ POST  http://localhost:3003/api/searching/multisearching HTTP/1.1
 Content-Type: application/json
 
 {
-    "keypoint": "",
+    "keypoint": "魚油",
     "id": "",
     "start_date": {
         "calendar": {
             "identifier": "gregory"
         },
         "era": "AD",
-        "year": 1990,
+        "year": 2006,
         "month": 1,
         "day": 1
     },
@@ -28,7 +28,7 @@ Content-Type: application/json
         "day": 31
     },
     "applicant": "",
-    "certification": "C1",
+    "certification": "",
     "ingredient": "",
     "benefit": "",
     "start_rate_point": 0,

@@ -24,8 +24,17 @@ export interface SearchRequest {
 }
 
 export interface QueryHealthFoodConditions {
-  Name?: string;
+  Name?: { contains: string };
   Id?: string;
   ApplicantId?: string;
   CFId?: string;
+  AcessDate?: { gte: Date; lte: Date };
+}
+
+export interface QueryIngredientConditions {
+  IGId?: string;
+}
+
+export interface QueryBenefitConditions {
+  BFId?: string;
 }

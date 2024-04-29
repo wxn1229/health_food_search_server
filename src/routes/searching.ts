@@ -1,7 +1,9 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import {
+  QueryBenefitConditions,
   QueryHealthFoodConditions,
+  QueryIngredientConditions,
   SearchRequest,
 } from "../types/SearchRequest";
 
@@ -32,18 +34,20 @@ router.post("/multisearching", async (req, res) => {
   } = req.body;
 
   let queryHealthFoodConditions: QueryHealthFoodConditions = {};
+  let queryIngredientConditions: QueryIngredientConditions = {};
+  let queryBenefitConditions: QueryBenefitConditions = {};
 
   // 添加條件，如果值存在且不為空字符串
   if (keypoint && keypoint.trim() !== "")
-    queryHealthFoodConditions.Name = keypoint;
+    queryHealthFoodConditions.Name = { contains: keypoint };
   if (id && id.trim() !== "") queryHealthFoodConditions.Id = id;
   if (applicant && applicant.trim() !== "")
     queryHealthFoodConditions.ApplicantId = applicant;
   if (certification && certification.trim() !== "")
     queryHealthFoodConditions.CFId = certification;
-  // if (ingredient && ingredient.trim() !== "")
-  //   queryConditions.ingredient = ingredient;
-  // if (benefit && benefit.trim() !== "") queryConditions.benefit = benefit;
+  if (ingredient && ingredient.trim() !== "")
+    queryIngredientConditions.IGId = ingredient;
+  if (benefit && benefit.trim() !== "") queryBenefitConditions.BFId = benefit;
   // if (start_rate_point !== undefined)
   //   queryConditions.ratePoint = { gte: start_rate_point };
   // if (end_rate_point !== undefined)
@@ -53,18 +57,30 @@ router.post("/multisearching", async (req, res) => {
   //   };
 
   // // 處理日期範圍條件
-  // if (start_date && end_date) {
-  //   queryConditions.createdAt = {
-  //     gte: new Date(start_date.year, start_date.month - 1, start_date.day),
-  //     lte: new Date(end_date.year, end_date.month - 1, end_date.day),
-  //   };
-  // }
+  if (start_date && end_date) {
+    queryHealthFoodConditions.AcessDate = {
+      gte: new Date(start_date.year, start_date.month - 1, start_date.day),
+      lte: new Date(end_date.year, end_date.month - 1, end_date.day),
+    };
+  }
 
   try {
     const results = await prisma.healthFood.findMany({
-      where: queryHealthFoodConditions,
+      where: {
+        ...queryHealthFoodConditions,
+        HF_and_Ingredient: {
+          some: {
+            ...queryIngredientConditions,
+          },
+        },
+        HF_and_BF: {
+          some: { ...queryBenefitConditions },
+        },
+      },
       select: {
+        Id: true,
         Name: true,
+        AcessDate: true,
         Applicant: {
           select: {
             Name: true,
@@ -75,8 +91,18 @@ router.post("/multisearching", async (req, res) => {
             Name: true,
           },
         },
+        HF_and_BF: {
+          select: {
+            BF: true,
+          },
+        },
+        HF_and_Ingredient: {
+          select: {
+            IG: true,
+          },
+        },
       },
-      take: 2,
+      take: 20,
     });
     res.json({ code: 200, results });
   } catch (e) {

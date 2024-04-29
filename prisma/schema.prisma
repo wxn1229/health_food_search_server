@@ -1,10 +1,11 @@
 datasource db {
   provider = "mysql"
-  url      = env("DATABASE_URL") 
+  url      = env("DATABASE_URL")
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
 }
 
 //使用者
@@ -42,11 +43,12 @@ model Comment {
 
 //健康食品
 model HealthFood {
-  Id        String   @id
-  Name      String   @unique
-  AcessDate DateTime
-  CFId      String
-
+  Id                String              @id
+  Name              String              @unique
+  AcessDate         DateTime
+  CFId              String
+  CurCommentNum     Int
+  CurPoint          Float
   Claims            String
   Warning           String
   Precautions       String
