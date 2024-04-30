@@ -68,6 +68,7 @@ router.post("/multisearching", async (req, res) => {
     const results = await prisma.healthFood.findMany({
       where: {
         ...queryHealthFoodConditions,
+
         HF_and_Ingredient: {
           some: {
             ...queryIngredientConditions,
@@ -108,6 +109,49 @@ router.post("/multisearching", async (req, res) => {
   } catch (e) {
     console.log(e);
   }
+});
+
+router.get("/searchById/:id", async (req, res) => {
+  const Id = req.params.id;
+
+  const result = await prisma.healthFood.findUnique({
+    where: {
+      Id,
+    },
+    include: {
+      HF_and_BF: {
+        select: {
+          BF: {
+            select: {
+              Name: true,
+            },
+          },
+        },
+      },
+      HF_and_Ingredient: {
+        select: {
+          IG: {
+            select: {
+              Name: true,
+              EnglishName: true,
+            },
+          },
+        },
+      },
+      Applicant: {
+        select: {
+          Name: true,
+        },
+      },
+      CF: {
+        select: {
+          Name: true,
+        },
+      },
+    },
+  });
+
+  res.json({ code: 200, result });
 });
 
 export { router as SearchingRoute };
