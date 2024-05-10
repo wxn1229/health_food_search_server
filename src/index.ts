@@ -3,6 +3,7 @@ import cors from "cors";
 import { PrismaClient } from "@prisma/client";
 import { SearchSettingRoute } from "./routes/searchSetting";
 import { SearchingRoute } from "./routes/searching";
+import { UserRoute } from "./routes/user";
 
 const prisma = new PrismaClient();
 prisma.$connect().catch((err) => {
@@ -41,6 +42,8 @@ app.get("/prisma", async (req, res) => {
 app.use("/api/searchsetting", SearchSettingRoute);
 
 app.use("/api/searching", SearchingRoute);
+
+app.use("/api/user", UserRoute);
 
 app.listen(3003, () => {
   console.log("sever listening 3003");
