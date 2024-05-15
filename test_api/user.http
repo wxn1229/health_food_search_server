@@ -10,7 +10,10 @@ Content-Type: application/json
 {
     "email" : "test123@gmail.com",
     "username" : "test123",
-    "password" : "test123pd"
+    "password" : "test123pd",
+    "age" : 18,
+    "gender" : true
+    
     
 }
 
@@ -22,7 +25,10 @@ Content-Type: application/json
 {
     "email" : "test1231@gmail.com",
     "username" : "test1231",
-    "password" : "test1231pd"
+    "password" : "test1231pd",
+    "age" : 25,
+    "gender" : false
+    
     
 }
 ### POST test

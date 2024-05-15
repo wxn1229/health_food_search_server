@@ -22,11 +22,17 @@ const router = Router();
 
 router.post("/signup", async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, username } = req.body;
 
     const user = await prisma.user.findUnique({
       where: {
         Email: email,
+      },
+    });
+
+    const name = await prisma.user.findUnique({
+      where: {
+        Name: username,
       },
     });
 
@@ -43,7 +49,7 @@ router.post("/signup", async (req, res) => {
   }
 
   try {
-    const { email, username, password } = req.body;
+    const { email, username, password, age, gender } = req.body;
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -54,6 +60,8 @@ router.post("/signup", async (req, res) => {
         Email: email,
         Name: username,
         Password: hashedPassword,
+        Age: age,
+        Gender: gender,
       },
     });
 

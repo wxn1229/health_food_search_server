@@ -33,7 +33,7 @@ app.post("/", (req, res) => {
 });
 
 app.get("/prisma", async (req, res) => {
-  const result = await prisma.healthFood.findMany({
+  const result = await prisma.healthfood.findMany({
     take: 5,
   });
   res.json({ code: 200, data: result });
