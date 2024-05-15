@@ -1,109 +1,111 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextIndex", "fullTextSearch"]
+}
+
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+model applicant {
+  Id         String       @id
+  Name       String
+  healthfood healthfood[]
 }
 
-//使用者
-model User {
-  Id             String      @id
-  Email          String      @unique
-  Password       String
-  isSuperAccount Boolean     @default(false)
-  Name           String?
-  Favourite      Favourite[]
-  Comment        Comment[]
+model benefits {
+  Id        String      @id
+  Name      String
+  hf_and_bf hf_and_bf[]
 }
 
-//我的最愛
-model Favourite {
-  UserId String
-  HFId   String
-  HF     HealthFood @relation(fields: [HFId], references: [Id])
-  User   User       @relation(fields: [UserId], references: [Id])
+model certification {
+  Id         String       @id
+  Name       String
+  healthfood healthfood[]
+}
+
+model comment {
+  UserId     String
+  HFId       String
+  content    String
+  point      Float
+  healthfood healthfood @relation(fields: [HFId], references: [Id], map: "Comment_HFId_fkey")
+  user       user       @relation(fields: [UserId], references: [Id], map: "Comment_UserId_fkey")
 
   @@id([UserId, HFId])
+  @@index([HFId], map: "Comment_HFId_fkey")
 }
 
-//評論
-model Comment {
-  UserId  String
-  HFId    String
-  content String
-  point   Float
-  HF      HealthFood @relation(fields: [HFId], references: [Id])
-  User    User       @relation(fields: [UserId], references: [Id])
+model favourite {
+  UserId     String
+  HFId       String
+  healthfood healthfood @relation(fields: [HFId], references: [Id], map: "Favourite_HFId_fkey")
+  user       user       @relation(fields: [UserId], references: [Id], map: "Favourite_UserId_fkey")
 
   @@id([UserId, HFId])
+  @@index([HFId], map: "Favourite_HFId_fkey")
 }
 
-//健康食品
-model HealthFood {
+model healthfood {
   Id                String              @id
-  Name              String              @unique
+  Name              String
   AcessDate         DateTime
-  CFId              String
-  CurCommentNum     Int
-  CurPoint          Float
   Claims            String
   Warning           String
   Precautions       String
   Website           String
   ApplicantId       String
-  Applicant         Applicant           @relation(fields: [ApplicantId], references: [Id])
-  Favourite         Favourite[]
-  Comment           Comment[]
-  HF_and_Ingredient HF_and_Ingredient[]
-  HF_and_BF         HF_and_BF[]
-  CF                Certification       @relation(fields: [CFId], references: [Id])
+  CFId              String
+  CurCommentNum     Int?                @default(0)
+  CurPoint          Float?              @default(0) @db.Float
+  comment           comment[]
+  favourite         favourite[]
+  applicant         applicant           @relation(fields: [ApplicantId], references: [Id], map: "HealthFood_ApplicantId_fkey")
+  certification     certification       @relation(fields: [CFId], references: [Id], map: "HealthFood_CFId_fkey")
+  hf_and_bf         hf_and_bf[]
+  hf_and_ingredient hf_and_ingredient[]
+
+  @@index([ApplicantId], map: "HealthFood_ApplicantId_fkey")
+  @@index([CFId], map: "HealthFood_CFId_fkey")
 }
 
-//申請商
+model hf_and_bf {
+  HFId       String
+  BFId       String
+  benefits   benefits   @relation(fields: [BFId], references: [Id], map: "HF_and_BF_BFId_fkey")
+  healthfood healthfood @relation(fields: [HFId], references: [Id], map: "HF_and_BF_HFId_fkey")
 
-model Applicant {
-  Id   String @id
-  Name String
-
-  HealthFood HealthFood[]
+  @@id([HFId, BFId])
+  @@index([BFId], map: "HF_and_BF_BFId_fkey")
 }
 
-model Ingredient {
+model hf_and_ingredient {
+  HFId       String
+  IGId       String
+  healthfood healthfood @relation(fields: [HFId], references: [Id], map: "HF_and_Ingredient_HFId_fkey")
+  ingredient ingredient @relation(fields: [IGId], references: [Id], map: "HF_and_Ingredient_IGId_fkey")
+
+  @@id([HFId, IGId])
+  @@index([IGId], map: "HF_and_Ingredient_IGId_fkey")
+}
+
+model ingredient {
   Id                String              @id
   Name              String?
   EnglishName       String?
-  HF_and_Ingredient HF_and_Ingredient[]
+  hf_and_ingredient hf_and_ingredient[]
 }
 
-model HF_and_Ingredient {
-  HFId String
-  IGId String
-  HF   HealthFood @relation(fields: [HFId], references: [Id])
-  IG   Ingredient @relation(fields: [IGId], references: [Id])
-
-  @@id([HFId, IGId])
-}
-
-model Benefits {
-  Id        String      @id
-  Name      String
-  HF_and_BF HF_and_BF[]
-}
-
-model HF_and_BF {
-  HFId String
-  BFId String
-  HF   HealthFood @relation(fields: [HFId], references: [Id])
-  BF   Benefits   @relation(fields: [BFId], references: [Id])
-
-  @@id([HFId, BFId])
-}
-
-model Certification {
-  Id         String       @id
-  Name       String
-  HealthFood HealthFood[]
+model user {
+  Id             String      @id
+  Email          String      @unique(map: "User_Email_key")
+  Password       String
+  isSuperAccount Boolean     @default(false)
+  Name           String      @unique(map: "Name")
+  Age            Int
+  Gender         Boolean
+  comment        comment[]
+  favourite      favourite[]
 }
