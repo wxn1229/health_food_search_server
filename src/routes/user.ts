@@ -31,13 +31,15 @@ router.post("/signup", async (req, res) => {
     });
 
     if (user) {
-      return res.json({
-        code: 406,
-        content: "user is exist",
-      });
+      // return res.json({
+      //   code: 406,
+      //   content: "user is exist",
+      // });
+      return res.status(406).send("user is exist");
     }
   } catch (error) {
     console.log("🚀 ~ router.post ~ error:", error);
+    return res.status(500).send("server error from /api/user/signup");
   }
 
   try {
@@ -55,10 +57,11 @@ router.post("/signup", async (req, res) => {
       },
     });
 
-    return res.json({
-      code: 200,
-      result: user,
-    });
+    // return res.json({
+    //   code: 200,
+    //   result: user,
+    // });
+    return res.status(200).json({ result: user });
   } catch (error) {
     console.log("🚀 ~ router.post ~ error:", error);
   }
@@ -90,6 +93,7 @@ router.post("/login", async (req, res) => {
         msg: "login success",
         token,
         user_name: user.Name,
+        user_id: user.Id,
       });
     } else {
       return res.status(401).send("password is not correct");
