@@ -43,6 +43,10 @@ router.post("/signup", async (req, res) => {
       // });
       return res.status(406).send("user is exist");
     }
+
+    if (name) {
+      return res.status(407).send("user name is exist");
+    }
   } catch (error) {
     console.log("🚀 ~ router.post ~ error:", error);
     return res.status(500).send("server error from /api/user/signup");
@@ -146,12 +150,47 @@ const authenticateToken = (
   });
 };
 
+router.post("/searchUserByName", async (req, res) => {
+  try {
+    const { username } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        Name: username,
+      },
+      select: {
+        Name: true,
+        Email: true,
+        Age: true,
+        Gender: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).send("user is not found");
+    }
+
+    res
+      .status(200)
+      .json({ message: "success get user data by username", user });
+  } catch (error) {
+    return res.status(500).send("server error");
+  }
+});
+
 // 受保護的路由
-router.get("/protected", authenticateToken, (req: RequestWithUser, res) => {
-  if (req.user) {
-    res.json({ message: `你好, 用戶 ${req.user.userName}` });
-  } else {
-    res.status(500);
+router.get("/verifyToken", authenticateToken, (req: RequestWithUser, res) => {
+  try {
+    if (req.user) {
+      return res.json({
+        message: `你好, 用戶 ${req.user.userName}`,
+        user_name: req.user.userName,
+      });
+    } else {
+      return res.status(403).json({ message: "please login" });
+    }
+  } catch (error) {
+    return res.status(500).send("server error");
   }
 });
 

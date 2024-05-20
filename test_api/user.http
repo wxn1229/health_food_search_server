@@ -43,6 +43,16 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:3003/api/user/protected HTTP/1.1
+GET http://localhost:3003/api/user/verifyToken HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI0OWMxOTRiOS0wMTFiLTRlNTYtYmI4MS1jZTlmM2FhZmE3NTYiLCJ1c2VyTmFtZSI6InRlc3QxMjMxIiwiaWF0IjoxNzE1MzMwMzg2fQ.pVw0ghHr9ZhgWP0X3MtVdrsHWV54n33yPV7UiQZKSBI
 
+
+### POST test
+
+POST http://localhost:3003/api/user/searchUserByName HTTP/1.1
+Content-Type: application/json
+
+{
+    "username" : "test111"
+    
+}
