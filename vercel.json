@@ -12,11 +12,5 @@
       "src": "/(.*)",
       "dest": "/api/index.ts"
     }
-  ],
-  "build": {
-    "env": {
-      "DATABASE_URL": "your-database-url"
-    },
-    "commands": ["npm install", "npm run build", "npx prisma generate"]
-  }
+  ]
 }
