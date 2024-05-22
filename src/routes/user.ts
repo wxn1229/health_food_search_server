@@ -16,9 +16,9 @@ prisma.$connect().catch((err) => {
 
 const router = Router();
 
-// router.get("/test", (req, res) => {
-//   res.send(process.env.JWT_KEYPOINT);
-// });
+router.get("/test", (req, res) => {
+  res.json({ message: "this is /api/user/test" });
+});
 
 router.post("/signup", async (req, res) => {
   try {
