@@ -1,5 +1,5 @@
-// test server
-GET http://localhost:3003/api/user/test HTTP/1.1
+### test server
+GET https://natural-comic-fawn.ngrok-free.app/api/user/test HTTP/1.1
 
 
 ### POST test

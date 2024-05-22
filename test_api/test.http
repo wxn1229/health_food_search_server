@@ -4,7 +4,7 @@ GET http://localhost:3003 HTTP/1.1
 
 ### POST test
 
-POST http://localhost:3003 HTTP/1.1
+POST https://natural-comic-fawn.ngrok-free.app HTTP/1.1
 Content-Type: application/json
 
 {
@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 ### Prisma test
-GET http://localhost:3003/prisma HTTP/1.1
+GET https://natural-comic-fawn.ngrok-free.app/prisma HTTP/1.1
 
 
 
