@@ -97,10 +97,7 @@ router.post("/login", async (req, res) => {
 
     if (isCorrect) {
       const secretKey = process.env.JWT_KEYPOINT || "default_secret_key";
-      const token = await jwt.sign(
-        { userId: user.Id, userName: user.Name },
-        secretKey
-      );
+      const token = await jwt.sign({ userId: user.Id }, secretKey);
       res.json({
         msg: "login success",
         token,
@@ -119,12 +116,11 @@ router.post("/login", async (req, res) => {
 // 定义用户信息的接口
 interface UserPayload {
   userId: string;
-  userName: string;
 }
 
 // 为 Request 添加用户属性
 interface RequestWithUser extends Request {
-  user?: UserPayload;
+  tokenInfo?: UserPayload;
 }
 
 // 验证中间件
@@ -145,10 +141,35 @@ const authenticateToken = (
     if (err) {
       return res.sendStatus(403);
     }
-    req.user = decoded as UserPayload; // 确保解码后的对象符合 UserPayload 接口
+    req.tokenInfo = decoded as UserPayload; // 确保解码后的对象符合 UserPayload 接口
     next();
   });
 };
+
+router.post("/searchUserById", async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    const user = await prisma.user.findUnique({
+      where: {
+        Id: userId,
+      },
+      select: {
+        Name: true,
+        Age: true,
+        Gender: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).send("user is not found");
+    }
+
+    res.status(200).json({ message: "success get user data by userId", user });
+  } catch (error) {
+    return res.status(500).send("server error");
+  }
+});
 
 router.post("/searchUserByName", async (req, res) => {
   try {
@@ -181,10 +202,10 @@ router.post("/searchUserByName", async (req, res) => {
 // 受保護的路由
 router.get("/verifyToken", authenticateToken, (req: RequestWithUser, res) => {
   try {
-    if (req.user) {
+    if (req.tokenInfo) {
       return res.json({
-        message: `你好, 用戶 ${req.user.userName}`,
-        user_name: req.user.userName,
+        message: `你好, 用戶 ${req.tokenInfo.userId}`,
+        user_id: req.tokenInfo.userId,
       });
     } else {
       return res.status(403).json({ message: "please login" });
@@ -193,5 +214,119 @@ router.get("/verifyToken", authenticateToken, (req: RequestWithUser, res) => {
     return res.status(500).send("server error");
   }
 });
+
+router.patch(
+  "/updateUserByEmail",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      const { email, name, age, gender } = req.body;
+
+      const verifyUser = await prisma.user.findUnique({
+        where: {
+          Email: email,
+        },
+        select: {
+          Id: true,
+        },
+      });
+
+      if (req.tokenInfo) {
+        if (verifyUser) {
+          if (verifyUser.Id !== req.tokenInfo.userId) {
+            return res.status(403).send("Insufficient permissions");
+          }
+        } else {
+          return res.status(404).send("not found user");
+        }
+      } else {
+        return res.status(403).send("Insufficient permissions");
+      }
+
+      const isExist = await prisma.user.findUnique({
+        where: {
+          Name: name,
+        },
+      });
+
+      if (isExist) {
+        return res.status(409).send("name is exist");
+      }
+
+      const user = await prisma.user.update({
+        where: {
+          Email: email,
+        },
+        data: {
+          Name: name,
+          Age: age,
+          Gender: gender,
+        },
+        select: {
+          Name: true,
+          Age: true,
+          Gender: true,
+        },
+      });
+
+      res.status(200).json({ message: "success update user data", user });
+    } catch (error) {
+      return res.status(500).send("server error");
+    }
+  }
+);
+
+router.patch(
+  "/changePassword",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      const { email, oldPassword, newPassword } = req.body;
+
+      const verifyUser = await prisma.user.findUnique({
+        where: {
+          Email: email,
+        },
+        select: {
+          Id: true,
+          Password: true,
+        },
+      });
+
+      if (req.tokenInfo) {
+        if (verifyUser) {
+          if (verifyUser.Id !== req.tokenInfo.userId) {
+            return res.status(403).send("Insufficient permissions");
+          }
+        } else {
+          return res.status(404).send("not found user");
+        }
+      } else {
+        return res.status(403).send("Insufficient permissions");
+      }
+
+      const isCorrect = await bcrypt.compare(oldPassword, verifyUser.Password);
+
+      if (isCorrect) {
+        const salt = await bcrypt.genSalt(10);
+        const newHashedPassword = await bcrypt.hash(newPassword, salt);
+        const changePassword = await prisma.user.update({
+          where: {
+            Email: email,
+          },
+          data: {
+            Password: newHashedPassword,
+          },
+        });
+      } else {
+        return res.status(402).send("oldPassword is incorrect");
+      }
+
+      res.status(200).json({ message: "success change user password" });
+    } catch (error) {
+      return res.status(500).send("server error");
+    }
+  }
+);
 
 export { router as UserRoute };

@@ -44,7 +44,7 @@ Content-Type: application/json
 
 ###
 GET http://localhost:3003/api/user/verifyToken HTTP/1.1
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI0OWMxOTRiOS0wMTFiLTRlNTYtYmI4MS1jZTlmM2FhZmE3NTYiLCJ1c2VyTmFtZSI6InRlc3QxMjMxIiwiaWF0IjoxNzE1MzMwMzg2fQ.pVw0ghHr9ZhgWP0X3MtVdrsHWV54n33yPV7UiQZKSBI
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmN2E2ZmE4ZC05MTY0LTRiMGYtOWNkMi0yZTE1ZWY1MWRkYzkiLCJpYXQiOjE3MTYzNjU4MjF9.RCEMvRgLnOHkyO8HW7RhVsRMGxQEMm4QoZD_60qMVFM
 
 
 ### POST test
@@ -56,3 +56,42 @@ Content-Type: application/json
     "username" : "test111"
     
 }
+### POST test
+
+POST http://localhost:3003/api/user/searchUserById HTTP/1.1
+Content-Type: application/json
+
+{
+    "userId" : "f7a6fa8d-9164-4b0f-9cd2-2e15ef51ddc9"
+    
+}
+### POST test
+
+PATCH  http://localhost:3003/api/user/updateUserByEmail HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmN2E2ZmE4ZC05MTY0LTRiMGYtOWNkMi0yZTE1ZWY1MWRkYzkiLCJpYXQiOjE3MTYzNjU4MjF9.RCEMvRgLnOHkyO8HW7RhVsRMGxQEMm4QoZD_60qMVFM
+
+{
+    "email" : "test1231@gmail.com",
+    "name" : "test1231up",
+    "age" : 30,
+    "gender" : false
+ 
+    
+}
+
+
+### POST test
+
+PATCH  http://localhost:3003/api/user/changePassword HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmN2E2ZmE4ZC05MTY0LTRiMGYtOWNkMi0yZTE1ZWY1MWRkYzkiLCJpYXQiOjE3MTYzNjU4MjF9.RCEMvRgLnOHkyO8HW7RhVsRMGxQEMm4QoZD_60qMVFM
+
+{
+    "email" : "test1231@gmail.com",
+    "oldPassword" : "test1231pdup",
+    "newPassword" : "test1231pd"
+ 
+    
+}
+
