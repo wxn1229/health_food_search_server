@@ -48,3 +48,5 @@ app.use("/api/user", UserRoute);
 app.listen(3003, () => {
   console.log("sever listening 3003");
 });
+
+export default app;
