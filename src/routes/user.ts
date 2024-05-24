@@ -329,4 +329,87 @@ router.patch(
   }
 );
 
+router.post(
+  "/submitComment",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const { userId } = req.tokenInfo;
+        const { hfId, content, score, modifyTime } = req.body;
+        const modifyTimeIso = new Date(modifyTime);
+
+        const isExist = await prisma.comment.findUnique({
+          where: {
+            UserId_HFId: {
+              UserId: userId,
+              HFId: hfId,
+            },
+          },
+        });
+        if (isExist) {
+          const updateComment = await prisma.comment.update({
+            where: {
+              UserId_HFId: {
+                UserId: userId,
+                HFId: hfId,
+              },
+            },
+            data: {
+              content: content,
+              point: score,
+              modifyTime: modifyTimeIso,
+            },
+          });
+          return res
+            .status(200)
+            .json({ message: "success update your comment", updateComment });
+        }
+
+        const comment = await prisma.comment.create({
+          data: {
+            UserId: userId,
+            HFId: hfId,
+            content: content,
+            point: score,
+            modifyTime: modifyTimeIso,
+          },
+        });
+        return res
+          .status(200)
+          .json({ message: "success submit your comment", comment });
+      } else {
+        return res.status(401).send("please login");
+      }
+    } catch (error) {
+      return res.status(500).send("server error");
+    }
+  }
+);
+
+router.post("/getComments", async (req: RequestWithUser, res) => {
+  try {
+    const { hfId } = req.body;
+    const comments = await prisma.comment.findMany({
+      where: {
+        HFId: hfId,
+      },
+      select: {
+        content: true,
+        modifyTime: true,
+        point: true,
+        User: {
+          select: {
+            Name: true,
+          },
+        },
+      },
+    });
+
+    return res.status(200).json({ message: "get user comments", comments });
+  } catch (error) {
+    return res.status(500).send("server error");
+  }
+});
+
 export { router as UserRoute };
