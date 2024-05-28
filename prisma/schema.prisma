@@ -37,7 +37,7 @@ model Comment {
   UserId     String
   HFId       String
   content    String
-  point      Float
+  point      Int
   modifyTime DateTime
   HF         HealthFood @relation(fields: [HFId], references: [Id])
   User       User       @relation(fields: [UserId], references: [Id])

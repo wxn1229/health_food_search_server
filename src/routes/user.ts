@@ -404,6 +404,9 @@ router.post("/getComments", async (req: RequestWithUser, res) => {
           },
         },
       },
+      orderBy: {
+        modifyTime: "desc",
+      },
     });
 
     return res.status(200).json({ message: "get user comments", comments });
