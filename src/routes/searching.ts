@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { PrismaClient } from "@prisma/client";
 import {
+  OrderByConditions,
   QueryBenefitConditions,
   QueryHealthFoodConditions,
   QueryIngredientConditions,
@@ -29,13 +30,15 @@ router.post("/multisearching", async (req, res) => {
     certification,
     ingredient,
     benefit,
-    start_rate_point,
-    end_rate_point,
+    page,
+    orderBy,
+    orderDir,
   } = req.body;
 
   let queryHealthFoodConditions: QueryHealthFoodConditions = {};
   let queryIngredientConditions: QueryIngredientConditions = {};
   let queryBenefitConditions: QueryBenefitConditions = {};
+  let orderByConditions: OrderByConditions = {};
 
   // 添加條件，如果值存在且不為空字符串
   if (keypoint && keypoint.trim() !== "")
@@ -48,13 +51,17 @@ router.post("/multisearching", async (req, res) => {
   if (ingredient && ingredient.trim() !== "")
     queryIngredientConditions.IGId = ingredient;
   if (benefit && benefit.trim() !== "") queryBenefitConditions.BFId = benefit;
-  // if (start_rate_point !== undefined)
-  //   queryConditions.ratePoint = { gte: start_rate_point };
-  // if (end_rate_point !== undefined)
-  //   queryConditions.ratePoint = {
-  //     ...queryConditions.ratePoint,
-  //     lte: end_rate_point,
-  //   };
+  if (orderBy && orderBy.trim() !== "") {
+    if (orderBy === "id") {
+      orderByConditions.Id = orderDir;
+    } else if (orderBy === "score") {
+      orderByConditions.CurPoint = orderDir;
+    } else if (orderBy === "date") {
+      orderByConditions.AcessDate = orderDir;
+    } else if (orderBy === "commentNumber") {
+      orderByConditions.CurCommentNum = orderDir;
+    }
+  }
 
   // // 處理日期範圍條件
   if (start_date && end_date) {
@@ -89,6 +96,7 @@ router.post("/multisearching", async (req, res) => {
         },
         CF: {
           select: {
+            Id: true,
             Name: true,
           },
         },
@@ -103,12 +111,48 @@ router.post("/multisearching", async (req, res) => {
           },
         },
       },
-      take: 20,
+      orderBy: {
+        ...orderByConditions,
+      },
+
+      take: 12,
+      skip: 12 * (page - 1),
     });
-    res.json({ code: 200, results });
+    const count = await prisma.healthFood.count({
+      where: {
+        ...queryHealthFoodConditions,
+
+        HF_and_Ingredient: {
+          some: {
+            ...queryIngredientConditions,
+          },
+        },
+        HF_and_BF: {
+          some: { ...queryBenefitConditions },
+        },
+      },
+    });
+
+    res.json({ code: 200, results, count: Math.ceil(count / 12) });
   } catch (e) {
     console.log(e);
   }
+});
+
+router.post("/getCommentDataById", async (req, res) => {
+  const { hfId } = req.body;
+
+  const result = await prisma.healthFood.findUnique({
+    where: {
+      Id: hfId,
+    },
+    select: {
+      CurCommentNum: true,
+      CurPoint: true,
+    },
+  });
+
+  res.json({ code: 200, result });
 });
 
 router.get("/searchById/:id", async (req, res) => {
@@ -145,6 +189,7 @@ router.get("/searchById/:id", async (req, res) => {
       },
       CF: {
         select: {
+          Id: true,
           Name: true,
         },
       },

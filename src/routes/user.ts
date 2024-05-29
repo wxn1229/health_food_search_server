@@ -361,9 +361,34 @@ router.post(
               modifyTime: modifyTimeIso,
             },
           });
-          return res
-            .status(200)
-            .json({ message: "success update your comment", updateComment });
+          const getAvgPoint = await prisma.comment.groupBy({
+            by: ["HFId"],
+            where: {
+              HFId: hfId,
+            },
+            _avg: {
+              point: true,
+            },
+            _count: {
+              UserId: true,
+            },
+          });
+          if (getAvgPoint[0]._avg.point) {
+            const calulateScore = await prisma.healthFood.update({
+              where: {
+                Id: hfId,
+              },
+              data: {
+                CurCommentNum: getAvgPoint[0]._count.UserId,
+                CurPoint: getAvgPoint[0]._avg.point,
+              },
+            });
+          }
+
+          return res.status(200).json({
+            message: "success update your comment",
+            updateComment,
+          });
         }
 
         const comment = await prisma.comment.create({
@@ -375,9 +400,36 @@ router.post(
             modifyTime: modifyTimeIso,
           },
         });
-        return res
-          .status(200)
-          .json({ message: "success submit your comment", comment });
+
+        const getAvgPoint = await prisma.comment.groupBy({
+          by: ["HFId"],
+          where: {
+            HFId: hfId,
+          },
+          _avg: {
+            point: true,
+          },
+          _count: {
+            UserId: true,
+          },
+        });
+
+        if (getAvgPoint[0]._avg.point) {
+          const calulateScore = await prisma.healthFood.update({
+            where: {
+              Id: hfId,
+            },
+            data: {
+              CurCommentNum: getAvgPoint[0]._count.UserId,
+              CurPoint: getAvgPoint[0]._avg.point,
+            },
+          });
+        }
+
+        return res.status(200).json({
+          message: "success submit your comment",
+          comment,
+        });
       } else {
         return res.status(401).send("please login");
       }
@@ -414,5 +466,202 @@ router.post("/getComments", async (req: RequestWithUser, res) => {
     return res.status(500).send("server error");
   }
 });
+
+router.post(
+  "/isComment",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const { userId } = req.tokenInfo;
+        const { hfId } = req.body;
+
+        const isComment = await prisma.comment.findFirst({
+          where: {
+            UserId: userId,
+            HFId: hfId,
+          },
+          select: {
+            content: true,
+            point: true,
+          },
+        });
+
+        if (isComment) {
+          return res
+            .status(200)
+            .json({ message: "success get isComment", isComment });
+        } else {
+          return res.status(404).send("not found");
+        }
+      } else {
+        return res.status(401).send("please login");
+      }
+    } catch (error) {
+      return res.status(500).send("server error");
+    }
+  }
+);
+
+router.post(
+  "/addFavourite",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const { userId } = req.tokenInfo;
+        const { hfId } = req.body;
+        const addFav = await prisma.favourite.create({
+          data: {
+            HFId: hfId,
+            UserId: userId,
+          },
+        });
+
+        return res
+          .status(200)
+          .json({ message: "success add to favourite", addFav });
+      } else {
+        return res.status(401).send("please login");
+      }
+    } catch (error) {
+      console.log("to fast");
+    }
+  }
+);
+
+router.post(
+  "/deleteFavourite",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const { userId } = req.tokenInfo;
+        const { hfId } = req.body;
+        const deleteFav = await prisma.favourite.delete({
+          where: {
+            UserId_HFId: {
+              HFId: hfId,
+              UserId: userId,
+            },
+          },
+        });
+
+        return res
+          .status(200)
+          .json({ message: "success delete from favourite" });
+      } else {
+        return res.status(401).send("please login");
+      }
+    } catch (error) {
+      console.log("to fast");
+    }
+  }
+);
+
+router.post(
+  "/isFavourite",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const { userId } = req.tokenInfo;
+        const { hfId } = req.body;
+        const isFav = await prisma.favourite.findUnique({
+          where: {
+            UserId_HFId: {
+              HFId: hfId,
+              UserId: userId,
+            },
+          },
+        });
+
+        if (isFav) {
+          return res
+            .status(200)
+            .json({ message: "success delete from favourite", isFav: true });
+        }
+
+        return res
+          .status(200)
+          .json({ message: "success delete from favourite", isFav: false });
+      } else {
+        return res.status(401).send("please login");
+      }
+    } catch (error) {
+      return res.status(500).send("server error");
+    }
+  }
+);
+
+router.post(
+  "/getFavHF",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const { userId } = req.tokenInfo;
+        const { page } = req.body;
+
+        const results = await prisma.healthFood.findMany({
+          where: {
+            Favourite: {
+              some: {
+                UserId: userId,
+              },
+            },
+          },
+          select: {
+            Id: true,
+            Name: true,
+            AcessDate: true,
+            Applicant: {
+              select: {
+                Name: true,
+              },
+            },
+            CF: {
+              select: {
+                Id: true,
+                Name: true,
+              },
+            },
+            HF_and_BF: {
+              select: {
+                BF: true,
+              },
+            },
+            HF_and_Ingredient: {
+              select: {
+                IG: true,
+              },
+            },
+          },
+
+          take: 12,
+          skip: 12 * (page - 1),
+        });
+
+        const count = await prisma.healthFood.count({
+          where: {
+            Favourite: {
+              some: {
+                UserId: userId,
+              },
+            },
+          },
+        });
+
+        return res.status(200).json({
+          message: "success get favourite healthFood data",
+          results,
+          count: Math.ceil(count / 12),
+        });
+      }
+    } catch (error) {
+      return res.status(500).send("server error");
+    }
+  }
+);
 
 export { router as UserRoute };

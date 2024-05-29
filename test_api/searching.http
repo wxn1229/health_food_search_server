@@ -14,7 +14,7 @@ Content-Type: application/json
             "identifier": "gregory"
         },
         "era": "AD",
-        "year": 2006,
+        "year": 1990,
         "month": 1,
         "day": 1
     },
@@ -31,9 +31,21 @@ Content-Type: application/json
     "certification": "",
     "ingredient": "",
     "benefit": "",
-    "start_rate_point": 0,
-    "end_rate_point": 5
+    "orderBy": "score",
+    "orderDir": "desc",
+    "page": 1
 }
 
 ### test searching/searchById
 Get  http://localhost:3003/api/searching/searchById/000001 HTTP/1.1
+
+### test searching/searchById
+POST   http://localhost:3003/api/searching/getCommentDataById HTTP/1.1
+Content-Type: application/json
+
+{
+    "hfId" : "000001"
+}
+
+
+
