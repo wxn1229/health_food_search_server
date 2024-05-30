@@ -200,20 +200,31 @@ router.post("/searchUserByName", async (req, res) => {
 });
 
 // 受保護的路由
-router.get("/verifyToken", authenticateToken, (req: RequestWithUser, res) => {
-  try {
-    if (req.tokenInfo) {
-      return res.json({
-        message: `你好, 用戶 ${req.tokenInfo.userId}`,
-        user_id: req.tokenInfo.userId,
-      });
-    } else {
-      return res.status(403).json({ message: "please login" });
+router.get(
+  "/verifyToken",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const user = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+        });
+
+        return res.json({
+          message: `你好, 用戶 ${req.tokenInfo.userId}`,
+          user_id: req.tokenInfo.userId,
+          isAdmin: user?.isSuperAccount,
+        });
+      } else {
+        return res.status(403).json({ message: "please login" });
+      }
+    } catch (error) {
+      return res.status(500).send("server error");
     }
-  } catch (error) {
-    return res.status(500).send("server error");
   }
-});
+);
 
 router.patch(
   "/updateUserByEmail",
@@ -249,7 +260,7 @@ router.patch(
         },
       });
 
-      if (isExist) {
+      if (isExist && isExist.Id !== req.tokenInfo.userId) {
         return res.status(409).send("name is exist");
       }
 
