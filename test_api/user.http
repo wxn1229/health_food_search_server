@@ -60,8 +60,8 @@ POST http://localhost:3003/api/user/login HTTP/1.1
 Content-Type: application/json
 
 {
-    "email" : "test123@gmail.com",
-    "password" : "test123pd"
+    "email" : "test111@gmail.com",
+    "password" : "test111pd"
     
 }
 ###

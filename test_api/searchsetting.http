@@ -19,6 +19,65 @@ GET http://localhost:3003/api/searchsetting/ingredient HTTP/1.1
 GET http://localhost:3003/api/searchsetting/benefit HTTP/1.1
 
 
+### POST test
+
+POST http://localhost:3003/api/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email" : "test111@gmail.com",
+    "password" : "test111pd"
+    
+}
+
+### POST test
+
+POST http://localhost:3003/api/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email" : "test222@gmail.com",
+    "password" : "test222pd"
+    
+}
+
+###
+PATCH   http://localhost:3003/api/searchsetting/editCer HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OWYyZTUzYi00NzhkLTQ0NGMtYTg2MC05MWRkNjJlYWRjM2YiLCJpYXQiOjE3MTcxNDIyNDh9.vGJJwITusntz_P6zaHP-KOK8komSbaUACTHoaaW9vUs
+
+{
+    "cerId" : "C1",
+    "name" : "核可up"
+
+}
+
+
+###
+PATCH   http://localhost:3003/api/searchsetting/editCer HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJhODMzMTAzMS04YWU1LTRmZmQtOTFlYS0wMDFmYzI4NzNlNmMiLCJpYXQiOjE3MTcxNDI2MDB9.CpLLrgQdHCeTb9JSy4kiUQVkmqyk5hESh8UKahnanHI
+
+{
+    "cerId" : "C1",
+    "name" : "核可up"
+
+}
+
+
+### get certification options
+GET http://localhost:3003/api/searchsetting/getLastCerId HTTP/1.1
+
+
+###
+POST    http://localhost:3003/api/searchsetting/deleteCer HTTP/1.1 HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OWYyZTUzYi00NzhkLTQ0NGMtYTg2MC05MWRkNjJlYWRjM2YiLCJpYXQiOjE3MTcxNTY0NTJ9.Ha9QqPVIxxhvqsec_UTSCcsKSsWQFMzIylkbFS-2Dcg
+
+{
+    "cerId" : "C7"
+
+}
 
 
 

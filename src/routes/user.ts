@@ -5,6 +5,7 @@ import { PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import { default as jwt } from "jsonwebtoken";
 import dotenv from "dotenv";
+import { authenticateToken } from "../utils/AuthToken";
 
 dotenv.config();
 
@@ -122,29 +123,6 @@ interface UserPayload {
 interface RequestWithUser extends Request {
   tokenInfo?: UserPayload;
 }
-
-// 验证中间件
-const authenticateToken = (
-  req: RequestWithUser,
-  res: Response,
-  next: NextFunction
-) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
-
-  if (token == null) {
-    return res.sendStatus(401);
-  }
-
-  const secretKey = process.env.JWT_KEYPOINT || "default_secret_key";
-  jwt.verify(token, secretKey, (err, decoded) => {
-    if (err) {
-      return res.sendStatus(403);
-    }
-    req.tokenInfo = decoded as UserPayload; // 确保解码后的对象符合 UserPayload 接口
-    next();
-  });
-};
 
 router.post("/searchUserById", async (req, res) => {
   try {
