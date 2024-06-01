@@ -58,6 +58,7 @@ model HealthFood {
   Precautions       String
   Website           String
   ApplicantId       String
+  ImgUrl            String?
   Applicant         Applicant           @relation(fields: [ApplicantId], references: [Id])
   Favourite         Favourite[]
   Comment           Comment[]
