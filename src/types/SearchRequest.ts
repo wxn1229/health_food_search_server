@@ -38,3 +38,10 @@ export interface QueryIngredientConditions {
 export interface QueryBenefitConditions {
   BFId?: string;
 }
+
+export interface OrderByConditions {
+  Id?: "asc" | "desc";
+  CurCommentNum?: "asc" | "desc";
+  CurPoint?: "asc" | "desc";
+  AcessDate?: "asc" | "desc";
+}

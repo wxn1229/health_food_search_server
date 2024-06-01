@@ -34,12 +34,13 @@ model Favourite {
 
 //評論
 model Comment {
-  UserId  String
-  HFId    String
-  content String
-  point   Float
-  HF      HealthFood @relation(fields: [HFId], references: [Id])
-  User    User       @relation(fields: [UserId], references: [Id])
+  UserId     String
+  HFId       String
+  content    String
+  point      Int
+  modifyTime DateTime
+  HF         HealthFood @relation(fields: [HFId], references: [Id])
+  User       User       @relation(fields: [UserId], references: [Id])
 
   @@id([UserId, HFId])
 }

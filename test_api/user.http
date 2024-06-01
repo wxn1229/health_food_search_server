@@ -31,6 +31,7 @@ Content-Type: application/json
     
     
 }
+
 ### POST test
 
 POST http://localhost:3003/api/user/login HTTP/1.1
@@ -42,6 +43,27 @@ Content-Type: application/json
     
 }
 
+### POST test
+
+POST http://localhost:3003/api/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email" : "test333@gmail.com",
+    "password" : "test333pd"
+    
+}
+
+### POST test
+
+POST http://localhost:3003/api/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email" : "test111@gmail.com",
+    "password" : "test111pd"
+    
+}
 ###
 GET http://localhost:3003/api/user/verifyToken HTTP/1.1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmN2E2ZmE4ZC05MTY0LTRiMGYtOWNkMi0yZTE1ZWY1MWRkYzkiLCJpYXQiOjE3MTYzNjU4MjF9.RCEMvRgLnOHkyO8HW7RhVsRMGxQEMm4QoZD_60qMVFM
@@ -95,3 +117,112 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmN2E2Z
     
 }
 
+###  test1231 comment submit
+
+POST  http://localhost:3003/api/user/submitComment HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJmN2E2ZmE4ZC05MTY0LTRiMGYtOWNkMi0yZTE1ZWY1MWRkYzkiLCJpYXQiOjE3MTYzNjU4MjF9.RCEMvRgLnOHkyO8HW7RhVsRMGxQEMm4QoZD_60qMVFM
+
+{
+    "hfId": "000001",
+    "content": "this is so so update",
+    "score" : 3,
+    "modifyTime" : "2024-05-27T10:30:00Z"
+}
+
+###  test333 comment submit
+
+POST  http://localhost:3003/api/user/submitComment HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyZTk3MzViYS0xNzBmLTQxZGMtODZmMy01ODIzZGFiMmRkNzciLCJpYXQiOjE3MTY1MzgyNTZ9.Y26AU1yO2Quk_LlJEUxFDdVH0WCh19zzmOHJNbLdvoM
+
+{
+    "hfId": "000001",
+    "content": "this is so bad",
+    "score" : 1,
+    "modifyTime" : "2023-05-24T10:30:00Z"
+}
+
+### test123 comment submit
+
+POST  http://localhost:3003/api/user/submitComment HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI4ZWJhNjg0MC1jZGJlLTQxZWEtYjhiMy0xOGI5N2MyMTk0ZjEiLCJpYXQiOjE3MTY1MzgzNDh9.8E34joNAXM3v6KfYIGmcjMstem2AVsug11841vmWTh0
+
+{
+    "hfId": "000001",
+    "content": "this is so good",
+    "score" : 5,
+    "modifyTime" : "2024-05-24T10:30:00Z"
+}
+
+### test123 comment submit
+
+POST  http://localhost:3003/api/user/submitComment HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OWYyZTUzYi00NzhkLTQ0NGMtYTg2MC05MWRkNjJlYWRjM2YiLCJpYXQiOjE3MTY4Nzc5NjF9.f7mNlVfa2EQ7WptLfoB5nb7Ipuy4-RZCQsDUZQcxD6s
+
+{
+    "hfId": "000001",
+    "content": "this is so good \n ljklsjldfjlsdfj \n slfjdlsfjld \n sjdlfsjldfjdslf",
+    "score" : 3,
+    "modifyTime" : "2024-04-24T10:30:00Z"
+}
+
+### POST test
+
+POST  http://localhost:3003/api/user/getComments HTTP/1.1
+Content-Type: application/json
+
+{
+    "hfId": "000001"
+}
+
+### POST test
+
+POST http://localhost:3003/api/user/login HTTP/1.1
+Content-Type: application/json
+
+{
+    "email" : "test111@gmail.com",
+    "password" : "test111pd"
+    
+}
+### get isComment
+POST http://localhost:3003/api/user/isComment HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OWYyZTUzYi00NzhkLTQ0NGMtYTg2MC05MWRkNjJlYWRjM2YiLCJpYXQiOjE3MTY4Nzc5NjF9.f7mNlVfa2EQ7WptLfoB5nb7Ipuy4-RZCQsDUZQcxD6s
+
+{
+    "hfId": "000001"
+}
+
+
+### get isComment
+POST http://localhost:3003/api/user/addFavourite HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OWYyZTUzYi00NzhkLTQ0NGMtYTg2MC05MWRkNjJlYWRjM2YiLCJpYXQiOjE3MTY4Nzc5NjF9.f7mNlVfa2EQ7WptLfoB5nb7Ipuy4-RZCQsDUZQcxD6s
+
+{
+    "hfId": "000003"
+}
+
+
+### get isComment
+POST   http://localhost:3003/api/user/deleteFavourite HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OWYyZTUzYi00NzhkLTQ0NGMtYTg2MC05MWRkNjJlYWRjM2YiLCJpYXQiOjE3MTY4Nzc5NjF9.f7mNlVfa2EQ7WptLfoB5nb7Ipuy4-RZCQsDUZQcxD6s
+
+{
+    "hfId": "000003"
+}
+
+
+### get isComment
+POST   http://localhost:3003/api/user/getFavHF HTTP/1.1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OWYyZTUzYi00NzhkLTQ0NGMtYTg2MC05MWRkNjJlYWRjM2YiLCJpYXQiOjE3MTY4Nzc5NjF9.f7mNlVfa2EQ7WptLfoB5nb7Ipuy4-RZCQsDUZQcxD6s
+
+{
+    "page": "1"
+}
