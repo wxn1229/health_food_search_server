@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { authenticateToken, RequestWithUser } from "../utils/AuthToken";
 
 const prisma = new PrismaClient();
@@ -22,6 +22,142 @@ router.get("/applicant", async (req, res) => {
     data: result,
   });
 });
+router.post("/AcById", async (req, res) => {
+  const { Id } = req.body;
+  const result = await prisma.applicant.findUnique({
+    where: {
+      Id: Id,
+    },
+  });
+
+  res.json({
+    code: 200,
+    data: result,
+  });
+});
+
+router.patch(
+  "/editAc",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const isAuth = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+          select: {
+            isSuperAccount: true,
+          },
+        });
+
+        if (isAuth?.isSuperAccount) {
+          const { acId, name } = req.body;
+          const editAc = await prisma.applicant.update({
+            where: {
+              Id: acId,
+            },
+            data: {
+              Name: name,
+            },
+          });
+          res
+            .status(200)
+            .json({ message: "success edit certification", editAc });
+        } else {
+          res.status(401).send("is not SuperAccount");
+        }
+      }
+    } catch (error) {
+      res.status(500).send("server error");
+    }
+  }
+);
+
+router.get("/getLastAcId", async (req, res) => {
+  try {
+    const result = await prisma.$queryRaw`
+    SELECT * FROM \`applicant\`
+    WHERE LENGTH(\`id\`) = (
+      SELECT MAX(LENGTH(\`id\`)) FROM \`applicant\`
+    )
+    ORDER BY \`id\` DESC
+    LIMIT 1
+  `;
+    res.status(200).json({ result });
+  } catch (error) {
+    console.log("🚀 ~ router.post ~ error:", error);
+  }
+});
+
+router.post(
+  "/createAc",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const isAuth = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+          select: {
+            isSuperAccount: true,
+          },
+        });
+
+        if (isAuth?.isSuperAccount) {
+          const { acId, name } = req.body;
+          const createAc = await prisma.applicant.create({
+            data: {
+              Id: acId,
+              Name: name,
+            },
+          });
+          res
+            .status(200)
+            .json({ message: "success create a certification", createAc });
+        } else {
+          res.status(401).send("is not SuperAccount");
+        }
+      }
+    } catch (error) {
+      res.status(500).send("server error");
+    }
+  }
+);
+
+router.post(
+  "/deleteAc",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const isAuth = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+          select: {
+            isSuperAccount: true,
+          },
+        });
+
+        if (isAuth?.isSuperAccount) {
+          const { acId } = req.body;
+          const deleteAc = await prisma.applicant.delete({
+            where: {
+              Id: acId,
+            },
+          });
+          res.status(201).json({ message: "success delete a certification" });
+        } else {
+          res.status(401).send("is not SuperAccount");
+        }
+      }
+    } catch (error) {
+      res.status(500).send("server error");
+    }
+  }
+);
 
 router.get("/certification", async (req, res) => {
   const result = await prisma.certification.findMany();
@@ -86,16 +222,15 @@ router.patch(
 
 router.get("/getLastCerId", async (req, res) => {
   try {
-    const result = await prisma.certification.findMany({
-      orderBy: {
-        Id: "desc",
-      },
-      select: {
-        Id: true,
-      },
-      take: 1,
-    });
-    res.status(200).json({ result: result[0] });
+    const result = await prisma.$queryRaw`
+    SELECT * FROM \`certification\`
+    WHERE LENGTH(\`id\`) = (
+      SELECT MAX(LENGTH(\`id\`)) FROM \`certification\`
+    )
+    ORDER BY \`id\` DESC
+    LIMIT 1
+  `;
+    res.status(200).json({ result });
   } catch (error) {
     console.log("🚀 ~ router.post ~ error:", error);
   }
@@ -193,7 +328,7 @@ router.post("/IgById", async (req, res) => {
 });
 
 router.patch(
-  "/editCer",
+  "/editIg",
   authenticateToken,
   async (req: RequestWithUser, res) => {
     try {
@@ -208,13 +343,14 @@ router.patch(
         });
 
         if (isAuth?.isSuperAccount) {
-          const { igId, name } = req.body;
+          const { igId, name, englishName } = req.body;
           const editIg = await prisma.ingredient.update({
             where: {
               Id: igId,
             },
             data: {
               Name: name,
+              EnglishName: englishName,
             },
           });
           res
@@ -261,11 +397,12 @@ router.post(
         });
 
         if (isAuth?.isSuperAccount) {
-          const { igId, name } = req.body;
+          const { igId, name, englishName } = req.body;
           const createIg = await prisma.ingredient.create({
             data: {
               Id: igId,
               Name: name,
+              EnglishName: englishName,
             },
           });
           res
@@ -322,5 +459,373 @@ router.get("/benefit", async (req, res) => {
     data: result,
   });
 });
+router.post("/BfById", async (req, res) => {
+  const { Id } = req.body;
+  const result = await prisma.benefits.findUnique({
+    where: {
+      Id: Id,
+    },
+  });
+
+  res.json({
+    code: 200,
+    data: result,
+  });
+});
+
+router.patch(
+  "/editBf",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const isAuth = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+          select: {
+            isSuperAccount: true,
+          },
+        });
+
+        if (isAuth?.isSuperAccount) {
+          const { bfId, name } = req.body;
+          const editbf = await prisma.benefits.update({
+            where: {
+              Id: bfId,
+            },
+            data: {
+              Name: name,
+            },
+          });
+          res
+            .status(200)
+            .json({ message: "success edit certification", editbf });
+        } else {
+          res.status(401).send("is not SuperAccount");
+        }
+      }
+    } catch (error) {
+      res.status(500).send("server error");
+    }
+  }
+);
+
+router.get("/getLastBfId", async (req, res) => {
+  try {
+    const result = await prisma.$queryRaw`
+    SELECT * FROM \`benefits\`
+    WHERE LENGTH(\`id\`) = (
+      SELECT MAX(LENGTH(\`id\`)) FROM \`benefits\`
+    )
+    ORDER BY \`id\` DESC
+    LIMIT 1
+  `;
+    res.status(200).json({ result });
+  } catch (error) {
+    console.log("🚀 ~ router.post ~ error:", error);
+  }
+});
+
+router.post(
+  "/createBf",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const isAuth = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+          select: {
+            isSuperAccount: true,
+          },
+        });
+
+        if (isAuth?.isSuperAccount) {
+          const { bfId, name } = req.body;
+          const createBf = await prisma.benefits.create({
+            data: {
+              Id: bfId,
+              Name: name,
+            },
+          });
+          res
+            .status(200)
+            .json({ message: "success create a certification", createBf });
+        } else {
+          res.status(401).send("is not SuperAccount");
+        }
+      }
+    } catch (error) {
+      res.status(500).send("server error");
+    }
+  }
+);
+
+router.post(
+  "/deleteBf",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const isAuth = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+          select: {
+            isSuperAccount: true,
+          },
+        });
+
+        if (isAuth?.isSuperAccount) {
+          const { bfId } = req.body;
+          const deleteBf = await prisma.benefits.delete({
+            where: {
+              Id: bfId,
+            },
+          });
+          res.status(201).json({ message: "success delete a certification" });
+        } else {
+          res.status(401).send("is not SuperAccount");
+        }
+      }
+    } catch (error) {
+      res.status(500).send("server error");
+    }
+  }
+);
+router.get("/healthFoodTable", async (req, res) => {
+  const result = await prisma.healthFood.findMany({
+    select: {
+      Id: true,
+      Name: true,
+
+      CF: {
+        select: {
+          Id: true,
+          Name: true,
+        },
+      },
+      Applicant: {
+        select: {
+          Name: true,
+        },
+      },
+    },
+  });
+  const transformedData = result.map((item) => ({
+    Id: item.Id,
+    Name: item.Name,
+    CfId: item.CF.Id,
+    CfName: item.CF.Name,
+    AcName: item.Applicant.Name,
+  }));
+  res.json({
+    code: 200,
+    data: transformedData,
+  });
+});
+router.post("/HfById", async (req, res) => {
+  const { Id } = req.body;
+  const result = await prisma.healthFood.findUnique({
+    where: {
+      Id: Id,
+    },
+    include: {
+      HF_and_BF: true,
+      HF_and_Ingredient: true,
+      Applicant: true,
+      CF: true,
+    },
+  });
+
+  res.json({
+    code: 200,
+    data: result,
+  });
+});
+
+router.patch(
+  "/editHf",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const isAuth = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+          select: {
+            isSuperAccount: true,
+          },
+        });
+
+        if (isAuth?.isSuperAccount) {
+          const {
+            hfId,
+            name,
+            acId,
+            cfId,
+            acessDate,
+            claims,
+            warning,
+            precautions,
+            website,
+            imgUrl,
+            HF_and_BF,
+            HF_and_IG,
+          } = req.body;
+          const editbf = await prisma.healthFood.update({
+            where: {
+              Id: hfId,
+            },
+            data: {
+              Name: name,
+              ApplicantId: acId,
+              CFId: cfId,
+              AcessDate: acessDate,
+              Claims: claims,
+              Warning: warning,
+              Precautions: precautions,
+              Website: website,
+              ImgUrl: imgUrl,
+            },
+          });
+
+          const deleteBF = await prisma.hF_and_BF.deleteMany({
+            where: {
+              HFId: hfId,
+            },
+          });
+          const deleteIG = await prisma.hF_and_Ingredient.deleteMany({
+            where: {
+              HFId: hfId,
+            },
+          });
+
+          let bfs: Prisma.HF_and_BFCreateManyInput[] = [];
+          HF_and_BF.map((item: any, index: any) => {
+            bfs[index] = {
+              HFId: hfId,
+              BFId: item.bfId,
+            };
+          });
+
+          let igs: Prisma.HF_and_IngredientCreateManyInput[] = [];
+          HF_and_IG.map((item: any, index: any) => {
+            igs[index] = {
+              HFId: hfId,
+              IGId: item.igId,
+            };
+          });
+
+          const createBfs = await prisma.hF_and_BF.createMany({
+            data: bfs,
+          });
+          const createIgs = await prisma.hF_and_Ingredient.createMany({
+            data: igs,
+          });
+          res.status(200).json({
+            message: "success edit certification",
+            editbf,
+            createBfs,
+            createIgs,
+          });
+        } else {
+          res.status(401).send("is not SuperAccount");
+        }
+      }
+    } catch (error) {
+      console.log("🚀 ~ error:", error);
+      res.status(500).send("server error");
+    }
+  }
+);
+
+router.get("/getLastBfId", async (req, res) => {
+  try {
+    const result = await prisma.$queryRaw`
+    SELECT * FROM \`benefits\`
+    WHERE LENGTH(\`id\`) = (
+      SELECT MAX(LENGTH(\`id\`)) FROM \`benefits\`
+    )
+    ORDER BY \`id\` DESC
+    LIMIT 1
+  `;
+    res.status(200).json({ result });
+  } catch (error) {
+    console.log("🚀 ~ router.post ~ error:", error);
+  }
+});
+
+router.post(
+  "/createBf",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const isAuth = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+          select: {
+            isSuperAccount: true,
+          },
+        });
+
+        if (isAuth?.isSuperAccount) {
+          const { bfId, name } = req.body;
+          const createBf = await prisma.benefits.create({
+            data: {
+              Id: bfId,
+              Name: name,
+            },
+          });
+          res
+            .status(200)
+            .json({ message: "success create a certification", createBf });
+        } else {
+          res.status(401).send("is not SuperAccount");
+        }
+      }
+    } catch (error) {
+      res.status(500).send("server error");
+    }
+  }
+);
+
+router.post(
+  "/deleteBf",
+  authenticateToken,
+  async (req: RequestWithUser, res) => {
+    try {
+      if (req.tokenInfo) {
+        const isAuth = await prisma.user.findUnique({
+          where: {
+            Id: req.tokenInfo.userId,
+          },
+          select: {
+            isSuperAccount: true,
+          },
+        });
+
+        if (isAuth?.isSuperAccount) {
+          const { bfId } = req.body;
+          const deleteBf = await prisma.benefits.delete({
+            where: {
+              Id: bfId,
+            },
+          });
+          res.status(201).json({ message: "success delete a certification" });
+        } else {
+          res.status(401).send("is not SuperAccount");
+        }
+      }
+    } catch (error) {
+      res.status(500).send("server error");
+    }
+  }
+);
 
 export { router as SearchSettingRoute };

@@ -10,6 +10,10 @@ GET http://localhost:3003/api/searchsetting/applicant HTTP/1.1
 ### get certification options
 GET http://localhost:3003/api/searchsetting/certification HTTP/1.1
 
+### get certification options
+GET http://localhost:3003/api/searchsetting/healthFoodTable HTTP/1.1
+
+
 
 ### get ingredient options
 GET http://localhost:3003/api/searchsetting/ingredient HTTP/1.1
@@ -78,6 +82,21 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI5OWYyZ
     "cerId" : "C7"
 
 }
+
+
+### get certification options
+GET http://localhost:3003/api/searchsetting/getLastIgId HTTP/1.1
+
+
+### get certification options
+POST http://localhost:3003/api/searchsetting/HfById HTTP/1.1
+Content-Type: application/json
+
+{
+    "Id":"000001"
+}
+
+
 
 
 
