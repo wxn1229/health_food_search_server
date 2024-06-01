@@ -743,24 +743,8 @@ router.patch(
   }
 );
 
-router.get("/getLastBfId", async (req, res) => {
-  try {
-    const result = await prisma.$queryRaw`
-    SELECT * FROM \`benefits\`
-    WHERE LENGTH(\`id\`) = (
-      SELECT MAX(LENGTH(\`id\`)) FROM \`benefits\`
-    )
-    ORDER BY \`id\` DESC
-    LIMIT 1
-  `;
-    res.status(200).json({ result });
-  } catch (error) {
-    console.log("🚀 ~ router.post ~ error:", error);
-  }
-});
-
 router.post(
-  "/createBf",
+  "/createHf",
   authenticateToken,
   async (req: RequestWithUser, res) => {
     try {
@@ -775,16 +759,85 @@ router.post(
         });
 
         if (isAuth?.isSuperAccount) {
-          const { bfId, name } = req.body;
-          const createBf = await prisma.benefits.create({
-            data: {
-              Id: bfId,
-              Name: name,
+          const {
+            hfId,
+            name,
+            acId,
+            cfId,
+            acessDate,
+            claims,
+            warning,
+            precautions,
+            website,
+            imgUrl,
+            HF_and_BF,
+            HF_and_IG,
+          } = req.body;
+          const isExist = await prisma.healthFood.findUnique({
+            where: {
+              Id: hfId,
             },
           });
-          res
-            .status(200)
-            .json({ message: "success create a certification", createBf });
+          if (isExist) {
+            return res.status(409).send("HFId is exist");
+          }
+
+          const createbf = await prisma.healthFood.create({
+            data: {
+              Id: hfId,
+              Name: name,
+              ApplicantId: acId,
+              CFId: cfId,
+              AcessDate: acessDate,
+              Claims: claims,
+              Warning: warning,
+              Precautions: precautions,
+              Website: website,
+              ImgUrl: imgUrl,
+              CurCommentNum: 0,
+              CurPoint: 0.0,
+            },
+          });
+
+          const deleteBF = await prisma.hF_and_BF.deleteMany({
+            where: {
+              HFId: hfId,
+            },
+          });
+          const deleteIG = await prisma.hF_and_Ingredient.deleteMany({
+            where: {
+              HFId: hfId,
+            },
+          });
+
+          let bfs: Prisma.HF_and_BFCreateManyInput[] = [];
+          HF_and_BF.map((item: any, index: any) => {
+            bfs[index] = {
+              HFId: hfId,
+              BFId: item.bfId,
+            };
+          });
+
+          let igs: Prisma.HF_and_IngredientCreateManyInput[] = [];
+          HF_and_IG.map((item: any, index: any) => {
+            igs[index] = {
+              HFId: hfId,
+              IGId: item.igId,
+            };
+          });
+
+          const createBfs = await prisma.hF_and_BF.createMany({
+            data: bfs,
+          });
+          const createIgs = await prisma.hF_and_Ingredient.createMany({
+            data: igs,
+          });
+          res.status(200).json({
+            message: "success edit certification",
+            createbf,
+            createBfs,
+            createIgs,
+          });
         } else {
           res.status(401).send("is not SuperAccount");
         }
@@ -796,7 +849,7 @@ router.post(
 );
 
 router.post(
-  "/deleteBf",
+  "/deleteHf",
   authenticateToken,
   async (req: RequestWithUser, res) => {
     try {
@@ -811,10 +864,10 @@ router.post(
         });
 
         if (isAuth?.isSuperAccount) {
-          const { bfId } = req.body;
-          const deleteBf = await prisma.benefits.delete({
+          const { hfId } = req.body;
+          const deleteBf = await prisma.healthFood.delete({
             where: {
-              Id: bfId,
+              Id: hfId,
             },
           });
           res.status(201).json({ message: "success delete a certification" });
@@ -823,6 +876,7 @@ router.post(
         }
       }
     } catch (error) {
+      console.log("🚀 ~ error:", error);
       res.status(500).send("server error");
     }
   }

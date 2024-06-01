@@ -26,7 +26,7 @@ model User {
 model Favourite {
   UserId String
   HFId   String
-  HF     HealthFood @relation(fields: [HFId], references: [Id])
+  HF     HealthFood @relation(fields: [HFId], references: [Id], onDelete: Cascade)
   User   User       @relation(fields: [UserId], references: [Id])
 
   @@id([UserId, HFId])
@@ -39,7 +39,7 @@ model Comment {
   content    String
   point      Int
   modifyTime DateTime
-  HF         HealthFood @relation(fields: [HFId], references: [Id])
+  HF         HealthFood @relation(fields: [HFId], references: [Id], onDelete: Cascade)
   User       User       @relation(fields: [UserId], references: [Id])
 
   @@id([UserId, HFId])
@@ -86,8 +86,9 @@ model Ingredient {
 model HF_and_Ingredient {
   HFId String
   IGId String
-  HF   HealthFood @relation(fields: [HFId], references: [Id])
-  IG   Ingredient @relation(fields: [IGId], references: [Id])
+
+  HF HealthFood @relation(fields: [HFId], references: [Id], onDelete: Cascade)
+  IG Ingredient @relation(fields: [IGId], references: [Id])
 
   @@id([HFId, IGId])
 }
@@ -101,7 +102,7 @@ model Benefits {
 model HF_and_BF {
   HFId String
   BFId String
-  HF   HealthFood @relation(fields: [HFId], references: [Id])
+  HF   HealthFood @relation(fields: [HFId], references: [Id], onDelete: Cascade)
   BF   Benefits   @relation(fields: [BFId], references: [Id])
 
   @@id([HFId, BFId])

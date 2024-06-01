@@ -89,6 +89,7 @@ router.post("/multisearching", async (req, res) => {
         Id: true,
         Name: true,
         AcessDate: true,
+        ImgUrl: true,
         Applicant: {
           select: {
             Name: true,
