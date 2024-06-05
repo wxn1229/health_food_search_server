@@ -604,6 +604,7 @@ router.post(
             Id: true,
             Name: true,
             AcessDate: true,
+            ImgUrl: true,
             Applicant: {
               select: {
                 Name: true,

@@ -121,8 +121,7 @@ router.post(
         }
       }
     } catch (error) {
-      res.status(500).send("server error");
-    }
+      res.status(500).send("server error"); }
   }
 );
 
@@ -143,6 +142,14 @@ router.post(
 
         if (isAuth?.isSuperAccount) {
           const { acId } = req.body;
+          const isExist = await prisma.healthFood.findFirst({
+            where: {
+              ApplicantId: acId,
+            },
+          });
+          if (isExist) {
+            return res.status(403).send("is Exist");
+          }
           const deleteAc = await prisma.applicant.delete({
             where: {
               Id: acId,
@@ -288,6 +295,14 @@ router.post(
 
         if (isAuth?.isSuperAccount) {
           const { cerId } = req.body;
+          const isExist = await prisma.healthFood.findFirst({
+            where: {
+              CFId: cerId,
+            },
+          });
+          if (isExist) {
+            return res.status(403).send("is Exist");
+          }
           const deleteCer = await prisma.certification.delete({
             where: {
               Id: cerId,
@@ -435,6 +450,18 @@ router.post(
 
         if (isAuth?.isSuperAccount) {
           const { igId } = req.body;
+          const isExist = await prisma.healthFood.findFirst({
+            where: {
+              HF_and_Ingredient: {
+                some: {
+                  IGId: igId,
+                },
+              },
+            },
+          });
+          if (isExist) {
+            return res.status(403).send("is Exist");
+          }
           const deleteIg = await prisma.ingredient.delete({
             where: {
               Id: igId,
@@ -580,6 +607,18 @@ router.post(
 
         if (isAuth?.isSuperAccount) {
           const { bfId } = req.body;
+          const isExist = await prisma.healthFood.findFirst({
+            where: {
+              HF_and_BF: {
+                some: {
+                  BFId: bfId,
+                },
+              },
+            },
+          });
+          if (isExist) {
+            return res.status(403).send("is Exist");
+          }
           const deleteBf = await prisma.benefits.delete({
             where: {
               Id: bfId,

@@ -14,7 +14,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: [
+      "http://localhost:3000",
+      "https://health-food-search-system-client.vercel.app",
+      "https://health-food-search-system-client-wxn1229s-projects.vercel.app",
+    ],
     credentials: true,
   })
 );
@@ -22,15 +26,9 @@ app.use(
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.send("hello world");
-});
-
-app.post("/", (req, res) => {
-  console.log(req.body);
-  res.json({
-    code: 200,
-    Info: "sucess post",
-  });
+  res.send(
+    "https://health-food-search-system-client-wxn1229s-projects.vercel.app"
+  );
 });
 
 app.get("/prisma", async (req, res) => {
