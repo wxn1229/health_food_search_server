@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { default as jwt } from "jsonwebtoken";
 import dotenv from "dotenv";
 import { authenticateToken } from "../utils/AuthToken";
+import nodemailer from "nodemailer";
 
 dotenv.config();
 
@@ -54,7 +55,7 @@ router.post("/signup", async (req, res) => {
   }
 
   try {
-    const { email, username, password, age, gender } = req.body;
+    const { email, username, password, birthday, gender } = req.body;
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -65,7 +66,7 @@ router.post("/signup", async (req, res) => {
         Email: email,
         Name: username,
         Password: hashedPassword,
-        Age: age,
+        Birthday: new Date(birthday),
         Gender: gender,
       },
     });
@@ -134,7 +135,7 @@ router.post("/searchUserById", async (req, res) => {
       },
       select: {
         Name: true,
-        Age: true,
+        Birthday: true,
         Gender: true,
       },
     });
@@ -160,7 +161,7 @@ router.post("/searchUserByName", async (req, res) => {
       select: {
         Name: true,
         Email: true,
-        Age: true,
+        Birthday: true,
         Gender: true,
       },
     });
@@ -194,6 +195,7 @@ router.get(
           message: `你好, 用戶 ${req.tokenInfo.userId}`,
           user_id: req.tokenInfo.userId,
           isAdmin: user?.isSuperAccount,
+          user_name: user?.Name,
         });
       } else {
         return res.status(403).json({ message: "please login" });
@@ -209,7 +211,7 @@ router.patch(
   authenticateToken,
   async (req: RequestWithUser, res) => {
     try {
-      const { email, name, age, gender } = req.body;
+      const { email, name, birthday, gender } = req.body;
 
       const verifyUser = await prisma.user.findUnique({
         where: {
@@ -248,12 +250,12 @@ router.patch(
         },
         data: {
           Name: name,
-          Age: age,
+          Birthday: new Date(birthday),
           Gender: gender,
         },
         select: {
           Name: true,
-          Age: true,
+          Birthday: true,
           Gender: true,
         },
       });
@@ -653,5 +655,92 @@ router.post(
     }
   }
 );
+
+router.post("/forgotPassword", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // 檢查用戶是否存在
+    const user = await prisma.user.findUnique({
+      where: { Email: email },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "使用者不存在" });
+    }
+
+    // 創建重置 token
+    const resetToken = jwt.sign(
+      { userId: user.Id },
+      process.env.JWT_KEYPOINT || "default_secret_key",
+      { expiresIn: "1h" }
+    );
+
+    // 設置郵件傳送器
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD,
+      },
+    });
+
+    // 重置密碼的連結
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+
+    // 郵件內容
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "重置密碼",
+      html: `
+        <h1>重置密碼請求</h1>
+        <p>請點擊下面的連結重置密碼：</p>
+        <a href="${resetLink}">重置密碼</a>
+        <p>此連結將在一小時後失效。</p>
+      `,
+    };
+
+    // 發送郵件
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({
+      message: "重置密碼郵件已發送，請查看您的信箱",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "伺服器錯誤" });
+  }
+});
+
+router.post("/resetPassword", async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    // 驗證 token
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_KEYPOINT || "default_secret_key"
+    ) as { userId: string };
+
+    // 加密新密碼
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    // 更新密碼
+    await prisma.user.update({
+      where: { Id: decoded.userId },
+      data: { Password: hashedPassword },
+    });
+
+    res.status(200).json({ message: "密碼已成功重置" });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({ message: "重置連結已過期" });
+    }
+    console.error(error);
+    res.status(500).json({ message: "伺服器錯誤" });
+  }
+});
 
 export { router as UserRoute };
