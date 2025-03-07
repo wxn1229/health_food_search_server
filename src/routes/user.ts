@@ -585,76 +585,75 @@ router.post(
   }
 );
 
-router.post(
-  "/getFavHF",
-  authenticateToken,
-  async (req: RequestWithUser, res) => {
-    try {
-      if (req.tokenInfo) {
-        const { userId } = req.tokenInfo;
-        const { page } = req.body;
+router.get("/FavHF", authenticateToken, async (req: RequestWithUser, res) => {
+  try {
+    if (req.tokenInfo) {
+      const { userId } = req.tokenInfo;
+      const page = parseInt((req.query.page as string) || "1", 10);
 
-        const results = await prisma.healthFood.findMany({
-          where: {
-            Favourite: {
-              some: {
-                UserId: userId,
-              },
+      const results = await prisma.healthFood.findMany({
+        where: {
+          Favourite: {
+            some: {
+              UserId: userId,
             },
           },
-          select: {
-            Id: true,
-            Name: true,
-            AcessDate: true,
-            ImgUrl: true,
-            Applicant: {
-              select: {
-                Name: true,
-              },
-            },
-            CF: {
-              select: {
-                Id: true,
-                Name: true,
-              },
-            },
-            HF_and_BF: {
-              select: {
-                BF: true,
-              },
-            },
-            HF_and_Ingredient: {
-              select: {
-                IG: true,
-              },
+        },
+        select: {
+          Id: true,
+          Name: true,
+          AcessDate: true,
+          ImgUrl: true,
+          CurPoint: true,
+          CurCommentNum: true,
+          Claims: true,
+          Applicant: {
+            select: {
+              Name: true,
             },
           },
-
-          take: 12,
-          skip: 12 * (page - 1),
-        });
-
-        const count = await prisma.healthFood.count({
-          where: {
-            Favourite: {
-              some: {
-                UserId: userId,
-              },
+          CF: {
+            select: {
+              Id: true,
+              Name: true,
             },
           },
-        });
+          HF_and_BF: {
+            select: {
+              BF: true,
+            },
+          },
+          HF_and_Ingredient: {
+            select: {
+              IG: true,
+            },
+          },
+        },
 
-        return res.status(200).json({
-          message: "success get favourite healthFood data",
-          results,
-          count: Math.ceil(count / 12),
-        });
-      }
-    } catch (error) {
-      return res.status(500).send("server error");
+        take: 12,
+        skip: 12 * (page - 1),
+      });
+
+      const count = await prisma.healthFood.count({
+        where: {
+          Favourite: {
+            some: {
+              UserId: userId,
+            },
+          },
+        },
+      });
+
+      return res.status(200).json({
+        message: "success get favourite healthFood data",
+        results,
+        count: Math.ceil(count / 12),
+      });
     }
+  } catch (error) {
+    return res.status(500).send("server error");
   }
-);
+});
 
 router.post("/forgotPassword", async (req, res) => {
   try {
